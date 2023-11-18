@@ -30,6 +30,14 @@ class FileSystem
         return $this->defaultStorage->read($this->getRelPathFromHash($hash, $dir_sufix));
     }
 
+    /**
+     * @return resource
+     */
+    public function getStream(string $hash, ?string $dir_sufix = self::DIR_SUFIX)
+    {
+        return $this->defaultStorage->readStream($this->getRelPathFromHash($hash, $dir_sufix));
+    }
+
     public function uploadFile(string $local_file_path, ?string $dir_sufix = self::DIR_SUFIX, string $hash_algo = self::UPLOAD_HASH_ALGO):string
     {
 

@@ -19,30 +19,41 @@ class FileSystemTest extends TestCase
      */
     public function test_upload()
     {
-
-        $this->clearDir();
-
         $hash = $this->doUpload();
 
         $this->assertEquals(true, $this->getFileSystemInstance()->exists($hash));
 
         $this->assertEquals(true, $this->getFileSystemInstance()->delete($hash));
-
-        $this->clearDir();
     }
 
     public function test_get_contents()
     {
-
-        $this->clearDir();
-
         $hash = $this->doUpload();
 
         $contents = $this->getFileSystemInstance()->getContents($hash);
 
-        $this->assertEquals(true, $this->getFileSystemInstance()->delete($hash));
+        $this->assertEquals
+        (
+            $hash,
+            hash_file(FileSystem::UPLOAD_HASH_ALGO, $this->createTmpFile($contents))
+        );
 
-        $this->clearDir();
+        $this->assertEquals(true, $this->getFileSystemInstance()->delete($hash));
+    }
+
+    public function test_get_stream()
+    {
+        $hash = $this->doUpload();
+
+        $stream = $this->getFileSystemInstance()->getStream($hash);
+
+        $this->assertEquals
+        (
+            $hash,
+            hash_file(FileSystem::UPLOAD_HASH_ALGO, $this->createTmpFile(stream_get_contents($stream)))
+        );
+
+        $this->assertEquals(true, $this->getFileSystemInstance()->delete($hash));
     }
 
     private function getFileSystemInstance():FileSystem
@@ -52,22 +63,26 @@ class FileSystemTest extends TestCase
         return $this->fileSystem;
     }
 
-    private function doUpload():string
+    private function doUpload():string //return file hash
+    {
+        return
+        $this->getFileSystemInstance()->uploadFile
+        (
+            $this->createTmpFile(random_bytes(rand(1000000,10000000))) //Put random bytes to tmp file
+        );
+    }
+
+    private function createTmpFile(string $contents):string
     {
         $tmp_path = tempnam(sys_get_temp_dir(), self::genRandomHash());
 
-        file_put_contents($tmp_path, random_bytes(rand(1000000,10000000))); //Put random bytes to file
+        file_put_contents($tmp_path, $contents);
 
-        return $this->getFileSystemInstance()->uploadFile($tmp_path); //return file hash
+        return $tmp_path;
     }
 
     private static function genRandomHash():string
     {
         return hash('md5', random_bytes(32));
-    }
-
-    private function clearDir():void
-    {
-
     }
 }
