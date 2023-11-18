@@ -1,4 +1,4 @@
-# phpfilemanager
+# php-filesystem-hash
 
 Install:
 

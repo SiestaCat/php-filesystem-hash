@@ -1,4 +1,4 @@
 /.history
 /vendor/
 .phpunit.result.cache
-/tests/fs_data
+/tests/.data
